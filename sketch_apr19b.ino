@@ -1,18 +1,17 @@
-//circuits.io
 #define LED_PIN 13
 #define BUT_PIN 2
 #define BUT2_PIN 4
 
 unsigned long old;
-unsigned long old2;
-unsigned long old3;
 int st;
 unsigned long ace;
-int cont;
+int aci1,aci2;
+unsigned long cont_tmp1,cont_tmp2;
 void setup() 
 {
   pinMode(LED_PIN,OUTPUT);
   pinMode(BUT_PIN,INPUT);
+  pinMode(BUT2_PIN,INPUT);
   st = 0;
   ace = 1000;  
 }
@@ -26,38 +25,42 @@ void loop()
     st = !st;
     digitalWrite(LED_PIN,st);
   }
-  if(now >= (old2+200))
-  {
-    old2 = now;
-    if(cont == 2)
-    {
-      ace -=100;
-      cont = 1;
-    }
-    else if (cont == 3)
-    {
-      ace += 100; 
-      cont = 1;
-    }
-  }
   int but = digitalRead(BUT_PIN);
   if(!but)
   {
-    cont = 2;
-  }
-  int but2 = digitalRead(BUT2_PIN);
-  if(!but2)
-  {
-    cont = 3;
-  }
-  if((!but) && (!but2))
-  {
-    old3 += 1;
-    if() >=)
+    if(aci1 == 0)
     {
-      digitalWrite(LED_PIN,LOW);
+      ace -= 100; 
+      cont_tmp1 = millis();
+    }
+    aci1 = 1;
+  }
+  else
+  {
+    aci1 = 0;
+    cont_tmp1 = 0;
+  }
+  but = digitalRead(BUT2_PIN);
+  if(!but)
+  {
+    if(aci2 == 0)
+    {
+      ace += 100; 
+      cont_tmp2 = millis();
+    }
+    aci2 = 1;
+  }
+  else
+  {
+    aci2 = 0;
+    cont_tmp2 = 0;
+  }
+  if((cont_tmp1 != 0) && (cont_tmp2 != 0))
+  {
+    if(((cont_tmp1-cont_tmp2)<=500) || ((cont_tmp2-cont_tmp1)<=500))
+    {
+      digitalWrite(LED_PIN, LOW);
       while(1); 
     }
   }
-
 }
