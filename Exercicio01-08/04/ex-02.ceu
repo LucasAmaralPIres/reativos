@@ -1,0 +1,36 @@
+#include "arduino/arduino.ceu"
+
+input  int PIN_02;
+output int PIN_04;
+output int PIN_05;
+output int PIN_06;
+
+{Serial.begin(9600);}
+{Serial.print("AQUI");}
+loop do
+	par/or do
+		loop do
+			emit PIN_04(HIGH);
+			emit PIN_05(LOW);
+			emit PIN_06(HIGH);
+			await 1s;
+			{Serial.print("AQUI");}
+			emit PIN_05(HIGH);
+			await 2s;
+			emit PIN_06(LOW);
+			emit PIN_05(LOW);
+			await 500ms;
+			emit PIN_04(LOW);
+			await 1s;
+		end
+	with
+		var int but = await PIN_02 until but == HIGH;
+		par/or do
+			var int but2 = await PIN_02 until but2 == HIGH;
+			break;
+		with
+			await 500ms;
+		end
+	end
+end
+await FOREVER;
