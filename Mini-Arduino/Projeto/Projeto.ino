@@ -6,29 +6,40 @@
 #define TIM 2
 #define CRON 3
 
+
+// Apagar seg_test na versão final;
 byte mode;
 byte flag_button_blink;
 unsigned long int segundos[4];
 unsigned long int index_display;
 unsigned long int temp_antes;
-int seg;
+int seg,seg_test;
 byte rel_pisc;
 
 void write_display()
 {
   char disp[] = {'0','0','0','0'};
-  if((mode == REL) || (mode ==  AL) || (mode == TIM))
+  unsigned long int rest1,rest2,rest3;
+  Serial.println(segundos[TIM]);
+  if((mode == REL) || (mode ==  AL) || ((mode == TIM) && ((segundos[TIM]>=3600) || (index_display != 6))))
   {
     disp[0] = segundos[mode]/36000 + '0';
-    Serial.println(segundos[mode]);
-    unsigned long int rest1 = segundos[mode]%36000;
-    Serial.println(rest1);
-    Serial.println(rest1/3600);
+    rest1 = segundos[mode]%36000;
     disp[1] = rest1/3600 + '0';
-    unsigned long int rest2 = rest1%3600;
+    rest2 = rest1%3600;
     disp[2] = rest2/600 + '0';
-    unsigned long int rest3 = rest2%600;
+    rest3 = rest2%600;
     disp[3] = rest3/60 + '0';
+    MFS.write(disp);
+  }
+  else if (((mode == TIM) && (segundos[TIM]<3600) && (index_display == 6)) || ((mode == CRON) && (segundos[mode]>=60) && (segundos[mode]<3600)))
+  {
+    disp[0] = segundos[mode]/600 + '0';
+    rest1 = segundos[mode]%600;
+    disp[1] = rest1/60 +'0';
+    rest2 = rest1%60;
+    disp[2] = rest2/10 + '0';
+    disp[3] = rest2%10 + '0';
     MFS.write(disp);
   }
 }
@@ -92,6 +103,10 @@ void button_pressed (byte button)
             index_display = index_display/6;
           temp_antes = segundos[mode];
         }
+        if((mode == CRON) && (segundos[mode] > 0))
+        {
+          segundos[mode] = 0;
+        }
         break;
     case BUTTON_3_PRESSED:
         if(flag_button_blink == 1)
@@ -101,6 +116,10 @@ void button_pressed (byte button)
             segundos[mode] += index_display;
             check_out_of_bounds(mode);
           }
+        }
+        if(mode == CRON)
+        {
+          segundos[mode]++;
         }
         break;
   }
@@ -220,6 +239,7 @@ void loop()
     seg++;
     if(seg == 100)
     {
+ //     Serial.println(++seg_test);
       seg = 0;
       segundos[REL] += 1;
       if(segundos[TIM] > 0)
@@ -240,6 +260,10 @@ void loop()
         MFS.beep(10,10,5,5,100);
     }
   }
+  if(segundos[CRON]>0)
+  {
+    segundos[CRON]++;
+  }
   byte but = MFS.getButton();
   button_pressed(but);
   if(flag_button_blink)
@@ -250,15 +274,6 @@ void loop()
     MFS.blinkDisplay(DIGIT_ALL, ON);
   else if(index_display == 6)
     MFS.blinkDisplay(DIGIT_ALL,OFF);
-//  Serial.println(segundos[TIM]);
-  //Serial.print("  ");
-  //Serial.println(temp_antes);
-// Serial.println(segundos[REL]);
   write_display();
   controle_led();
-/*  Serial.print(mode);
-  Serial.print("  ");
-  Serial.print(segundos[mode]);
-  Serial.print("  ");
-  Serial.println(index_display);*/
 }
