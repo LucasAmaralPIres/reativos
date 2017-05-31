@@ -1,0 +1,122 @@
+#include <SDL2/SDL.h>
+#include <assert.h>
+
+int main (int argc, char* args[])
+{
+    /* INITIALIZATION */
+
+    int err = SDL_Init(SDL_INIT_EVERYTHING);
+    assert(err == 0);
+
+    SDL_Window* window = SDL_CreateWindow("Dois retangulos de movendo ate apertar com mouse",
+                            SDL_WINDOWPOS_UNDEFINED,
+                            SDL_WINDOWPOS_UNDEFINED,
+                            900, 766, SDL_WINDOW_SHOWN);
+    assert(window != NULL);
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window,-1,0);
+    assert(renderer != NULL);
+	int mov1,mov2,ret1atv = 1, ret2atv = 1,etrue;
+	unsigned long int old,new;
+    /* EXECUTION */
+
+    SDL_Rect r = { 200,200, 50, 50 };
+    SDL_Rect r2 = { 400,200, 50, 50 };
+    SDL_Event e;
+	old = SDL_GetTicks();
+    while (1)
+    {
+		etrue = SDL_PollEvent(&e);
+		if(etrue != 0)
+		{
+			if(e.type == SDL_QUIT)
+			{
+    	   		break;
+			}
+			else if(e.type == SDL_MOUSEBUTTONDOWN)
+			{
+				SDL_MouseButtonEvent* me = (SDL_MouseButtonEvent*) &e;
+				if((me->x)>(r.x) && (me->x)<(r.x + 50) &&
+					(me->y)>(r.y) && (me->x)<(r.y + 50))
+				{
+					ret1atv = !ret1atv;
+				}
+        if((me->x)>(r2.x) && (me->x)<(r2.x + 50) &&
+					(me->y)>(r2.y) && (me->x)<(r2.y + 50))
+				{
+					ret2atv = !ret2atv;
+				}
+			}
+    }
+		new = SDL_GetTicks();
+		if((new-old)>50)
+		{
+			old = new;
+			if(ret1atv)
+			{
+				mov1++;
+				if(mov1<=100)
+				{
+					r.x += 3;
+				}
+				else if((mov1 > 100) && (mov1<=200))
+				{
+					r.y += 3;
+				}
+				else if((mov1 > 200) && (mov1<=300))
+				{
+					r.x -= 3;
+				}
+				else if((mov1 > 300) && (mov1<=400))
+				{
+					r.y -= 3;
+				}
+				else if(mov1>400)
+				{
+					mov1 = 0;
+				}
+			}
+			if(ret2atv)
+			{
+				mov2++;
+				if(mov2<=50)
+				{
+					r2.x -= 4;
+				}
+				else if((mov2 > 50) && (mov2<=100))
+				{
+					r2.y -= 4;
+				}
+				else if((mov2 > 100) && (mov2<=150))
+				{
+					r2.x += 4;
+				}
+				else if((mov2 > 150) && (mov2<=200))
+				{
+					r2.y += 4;
+				}
+				else if(mov2>200)
+				{
+					mov2 = 0;
+				}
+			}
+			SDL_SetRenderDrawColor(renderer,0xFF,0xFF,0xFF,0x00);
+			SDL_RenderFillRect(renderer, NULL);
+
+			SDL_SetRenderDrawColor(renderer,0x00,0x00,0xFF,0x00);
+			SDL_RenderFillRect(renderer, &r);
+
+			SDL_SetRenderDrawColor(renderer,0xA4,0xA4,0xA4,0x00);
+			SDL_RenderFillRect(renderer, &r2);
+
+		    SDL_RenderPresent(renderer);
+		}
+    }
+
+    /* FINALIZATION */
+
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+	return 0;
+}
