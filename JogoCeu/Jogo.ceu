@@ -1,0 +1,184 @@
+#include "c.ceu"
+#include "sdl/sdl.ceu"
+
+/*JOGO CEU PARA O DIA 20/06
+Rafael Najjar e Lucas d'Amaral
+Todo: 
+	Implementar pontos de Concreto, e spawnar de acordo.
+	Finais
+	Deixar as imagens em Alpha
+	Criar as perguntas e caminhos para as perguntas
+	
+*/
+var&? SDL_Init sdl =
+    spawn SDL_Init("\t\t\t\t\t\t\t\tPenso, logo existo", 800,600, SDL_Color(0xFF,0xFF,0xFF,0xFF));
+
+watching sdl do
+
+	//BEGIN LOAD IMAGE
+    var& SDL_Open_Image img_door = spawn SDL_Open_Image(&sdl!.ren, "/tmp/guest-cbugPU/Documentos/Door.png");
+    var& SDL_Open_Image img_bird = spawn SDL_Open_Image(&sdl!.ren, "/tmp/guest-cbugPU/Documentos/Bird.png");	
+    var& SDL_Open_Image img_cloud = spawn SDL_Open_Image(&sdl!.ren, "/tmp/guest-cbugPU/Documentos/Cloud.png");
+    var& SDL_Open_Image img_tree = spawn SDL_Open_Image(&sdl!.ren, "/tmp/guest-cbugPU/Documentos/Tree.png");
+    var& SDL_Open_Image img_bg = spawn SDL_Open_Image(&sdl!.ren, "/tmp/guest-cbugPU/Documentos/BG.png");
+    var& SDL_Open_Image img_sol = spawn SDL_Open_Image(&sdl!.ren, "/tmp/guest-cbugPU/Documentos/Sol.png");
+	//END LOAD IMAGE
+
+	//CLOUD
+    code/await Cloud (var SDL_Rect r, var int vx) -> FOREVER do
+        r.x = -r.w;
+        par do
+            var int dt;
+            every dt in SDL_DT do
+                r.x = r.x + vx*dt/1000;  // PROBLEMA DAS NUVENS ESTA AQUI E TEM HAVER COM A VELOCIDADE
+                if r.x > 800 then
+                    r.x = -r.w;
+                end
+            end
+        with
+            every SDL_REDRAW do
+				_SDL_RenderCopy(&&outer.sdl!.ren, &&outer.img_cloud.tex.tex, null,&&r as _SDL_Rect&&);
+
+				/*_SDL_SetRenderDrawColor(&&outer.sdl!.ren, 0xDD,0xDD,0xDD,0xFF);
+                r.x = x as int;
+                _SDL_RenderFillRect(&&outer.sdl!.ren, (&&r as _SDL_Rect&&));*/
+            end
+        end
+    end
+
+	//BIRD
+    code/await Bird (void) -> FOREVER do
+		var int vx = 90+_rand()%70;
+      	var int x = 0;
+		var SDL_Rect rct = val SDL_Rect(x,100, 30,30);
+		par do
+            var int dt;
+            every dt in SDL_DT do
+                rct.x = rct.x + vx*dt/1000;
+                if rct.x > 800 then
+		            rct.x = -20;
+                end
+            end
+        with
+            every SDL_REDRAW do
+           		_SDL_RenderCopy(&&outer.sdl!.ren, &&outer.img_bird.tex.tex, null,&&rct as _SDL_Rect&&);
+            end
+        end
+    end
+
+	//TREE
+	code/await Tree (void) -> FOREVER do
+		var SDL_Rect rct = val SDL_Rect(100,390, 150,200);
+        loop do
+		    every SDL_REDRAW do
+            	_SDL_RenderCopy(&&outer.sdl!.ren, &&outer.img_tree.tex.tex, null,&&rct as _SDL_Rect&&);
+			end
+		end		
+	end
+
+	//BACKGROUNG
+	code/await Background (void) -> FOREVER do
+		var SDL_Rect rct = val SDL_Rect(0,0, 800,600);
+        loop do
+		    every SDL_REDRAW do
+            	_SDL_RenderCopy(&&outer.sdl!.ren, &&outer.img_bg.tex.tex, null,&&rct as _SDL_Rect&&);
+			end
+		end		
+	end
+
+	//SOL
+	code/await Sol (void) -> FOREVER do
+		var SDL_Rect rct = val SDL_Rect(0,0, 150,150);
+        loop do
+		    every SDL_REDRAW do
+            	_SDL_RenderCopy(&&outer.sdl!.ren, &&outer.img_sol.tex.tex, null,&&rct as _SDL_Rect&&);
+			end
+		end		
+	end
+
+	//DOOR
+	code/await Door (var int px , var int py) -> FOREVER do
+		var SDL_Rect rct = val SDL_Rect(px,py, 50,100);
+	//	par/or do
+        loop do
+		    every SDL_REDRAW do
+            	_SDL_RenderCopy(&&outer.sdl!.ren, &&outer.img_door.tex.tex, null,&&rct as _SDL_Rect&&);
+			end
+		end		
+		//with
+			//collisão		
+		//end 
+	end
+
+	//BLOB
+    code/await Blob (void) -> FOREVER do
+        var float x = 800/2 - 20/2;
+        var float y = 600-60;
+        var float vx = 0;
+        var float vy = 0;
+
+        var SDL_Rect r = val SDL_Rect(0,0, 20,50);
+
+        par do
+            var int dt;
+            every dt in SDL_DT do
+                x = x + vx*dt/1000;
+                y = y + vy*dt/1000;
+            end
+        with
+            par do
+                loop do
+                    var _SDL_KeyboardEvent&& key;
+                    key = await SDL_KEYDOWN until key:keysym.sym==_SDLK_LEFT;
+                    vx = -100;
+                    key = await SDL_KEYUP   until key:keysym.sym==_SDLK_LEFT;
+                    vx = 0;
+                end
+            with
+                loop do
+                    var _SDL_KeyboardEvent&& key;
+                    key = await SDL_KEYDOWN until key:keysym.sym==_SDLK_RIGHT;
+                    vx = 100;
+                    key = await SDL_KEYUP   until key:keysym.sym==_SDLK_RIGHT;
+                    vx = 0;
+                end
+            end
+        with
+            every SDL_REDRAW do
+                _SDL_SetRenderDrawColor(&&outer.sdl!.ren, 0x00,0x00,0x00,0xFF);
+                r.x = x as int;
+                r.y = y as int;
+                _SDL_RenderFillRect(&&outer.sdl!.ren, (&&r as _SDL_Rect&&));
+            end
+        end
+    end
+	
+	//BEGIN ATIVAR RANDOM
+    native/pre do
+        ##include <time.h>
+    end
+    _srand(_time(null));
+	//END ATIVAR RANDOM
+
+	//BEGIN SPAWN TIME
+	spawn Background();
+	spawn Sol();
+    pool[3] Cloud clouds;
+    var int i;
+    loop i in [1 -> 3] do
+        var int w = 50 + _rand()%200;
+        var int h = 20 + _rand()%50;
+        var int y = h + _rand()%200;
+        spawn Cloud(SDL_Rect(0,y,w,h), 10+_rand()%50) in clouds;
+    end
+
+	spawn Bird();	
+	spawn Tree();
+	spawn Door(500,490);
+    spawn Blob();
+	//END SPAWN TIME
+
+    await FOREVER;
+end
+
+escape 0;
