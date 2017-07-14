@@ -3,15 +3,13 @@
 Alunos: Rafael Najjar (@kyros200) e Lucas d'Amaral (@LucasAmaralPIres)
 
 ## Objetivo
-O objetivo do projeto é de fornecer controle para a área do conjunto de salas na 6023F, na UERJ (Universidade do Estado do Rio de Janeiro). Tem como objetivo ter acesso mais fácil e acessível a todas as **Pessoas**, enquanto ao mesmo tempo aplica alguns métodos de entrada de acordo com o perfil da **Pessoa** (por exemplo, um aluno só poderá entrar na área caso esteja na hora da aula dele e quando o professor dessa aula estiver dentro).
+O objetivo do projeto é de fornecer controle para a área do conjunto de salas na 6023-F, na UERJ (Universidade do Estado do Rio de Janeiro). Tem como objetivo facilitar o acesso de todas as **Pessoas** as salas 6023-F. Enquanto todos que estão presentes no Banco de Dados tem acesso a sala, somente o Professor consegue adicionar ou remover Pessoas do Banco de Dados, dando a essas permissão de entrada na sala ou removendo-as da lista de acesso.
 
 ## Perfis
-Existem 3 perfis de **Pessoa**: Aluno, Professor e Admin. Admin tem como funcionalidade ser o responsável da definição dos professores nas matérias. O professor é aquele que tem acesso irrestrito na área caso ele dê alguma aula. O aluno por sua vez só tem acesso caso esteja na hora da aula dele e caso o professor dessa aula esteja na área.
+Existem 2 perfis de **Pessoa**: Aluno e Professor. O professor é aquele que tem acesso irrestrito na área caso ele dê alguma aula, somente ele também pode adicionar ou remover alunos. O aluno por sua vez só tem acesso se for adicionado pelo professor.
 
 ## Componentes
 Para isso precisaremos de:
 * **Arduino**
-* **Shield leitor de microSD** para que tenha bancos de dados.
-* **Shield de Clock** para ter as horas atuais.
 * **Shield leitor cartao RFID** para reconhecer o cartão da Pessoa
 * **Shield Teclado Matricial de Membrana 12 Teclas** para a Pessoa ter a opção de colocar a Matrícula invés de passar o cartão
